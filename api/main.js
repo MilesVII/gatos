@@ -102,6 +102,9 @@ const actions = [
 		login: "string",
 		password: "string"
 	}, false),
+	actionSchema("greet", {
+		page: "number"
+	}, false),
 	actionSchema("setSettings", {
 		new: {
 			login: [OPTIONAL, "string"],
@@ -209,6 +212,17 @@ export default async function (request, response) {
 			]).end(JSON.stringify({
 				id: u
 			}));
+			return;
+		}
+		case ("greet"): {
+			const [ag, page] = await Promise.all([
+				accessGranted("post", userId, token),
+				getPage(request.body.page)
+			]);
+			response.status(page ? 200 : 502).send({
+				auth: ag,
+				page
+			});
 			return;
 		}
 		case ("setSettings"): {

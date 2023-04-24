@@ -10,28 +10,29 @@ export type TabData = {
 };
 
 type TabPageProps = {
-	defaultKey: string,
+	tab: string,
+	setTab: React.Dispatch<React.SetStateAction<string>>,
 	tabData: TabData[]
 };
 
 export default function TabPage(props: TabPageProps) {
-	const [tab, setTab] = React.useState(props.defaultKey);
+	//const [tab, setTab] = React.useState(props.defaultKey);
 
 	const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
-		setTab(newValue);
+		props.setTab(newValue);
 	};
 
 	const filtered = props.tabData.filter(t => t.condition === undefined || t.condition());
 
 	return (
 		<Box sx={{ width: "100%", typography: "body1" }}>
-			<TabContext value={tab}>
+			<TabContext value={props.tab}>
 				<Box sx={{ borderBottom: 1, borderColor: "divider" }}>
 					<TabList onChange={handleChange} centered>
-						{filtered.map(t => <Tab label={t.title} value={t.key} />)}
+						{filtered.map(t => <Tab label={t.title} key={t.key} value={t.key} />)}
 					</TabList>
 				</Box>
-				{filtered.map(t => <TabPanel value={t.key}>{t.contents}</TabPanel>)}
+				{filtered.map(t => <TabPanel key={t.key} value={t.key}>{t.contents}</TabPanel>)}
 			</TabContext>
 		</Box>
 	);
