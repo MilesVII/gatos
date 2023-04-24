@@ -1,7 +1,7 @@
 //import * as React from "react";
 //import { Box, Tab } from "@mui/material";
 import TabPage from "./components/TabPage";
-import type TabData from "./components/TabPage";
+import type { TabData } from "./components/TabPage";
 
 const tabs: TabData[] = [
 	{

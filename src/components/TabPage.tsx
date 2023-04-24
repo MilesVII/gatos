@@ -17,7 +17,7 @@ type TabPageProps = {
 export default function TabPage(props: TabPageProps) {
 	const [tab, setTab] = React.useState(props.defaultKey);
 
-	const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+	const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
 		setTab(newValue);
 	};
 
