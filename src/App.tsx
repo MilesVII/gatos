@@ -7,17 +7,17 @@ const tabs: TabData[] = [
 	{
 		title: "Login",
 		key: "l",
-		contents: <>Penis</>
+		contents: <>L</>
 	},
 	{
 		title: "Browse",
 		key: "b",
-		contents: <>Benis</>
+		contents: <>B</>
 	},
 	{
 		title: "Search",
 		key: "s",
-		contents: <>Senis</>
+		contents: <>S</>
 	}
 ];
 
