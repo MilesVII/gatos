@@ -46,14 +46,12 @@ export default function App() {
 	}
 	function searchTag(tag: TagData){
 		const spacer = document.querySelector("#tagSpacer");
-		//spacer?.scrollIntoView({behavior: "smooth"});
-		//setCurrentTag(tag);
-			api("search", {query: tag.tag}).then(r => {
-				if (r.success) {
-					spacer?.scrollIntoView({behavior: "smooth"});
-					setSearchPosts(r.content?.body);
-				}
-			});
+		api("search", {query: tag.tag}).then(r => {
+			if (r.success) {
+				spacer?.scrollIntoView({behavior: "smooth"});
+				setSearchPosts(r.content?.body);
+			}
+		});
 	}
 
 	const tabs: TabData[] = [

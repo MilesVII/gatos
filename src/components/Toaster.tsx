@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Alert, Stack, Snackbar, Button } from "@mui/material";
+import { Alert, Stack, Snackbar } from "@mui/material";
 
 export type ToastData = {
 	message: string,
@@ -14,9 +14,9 @@ type ToasterProps = {
 export default function Toaster(props: ToasterProps) {
 	const [open, setOpen] = React.useState(false);
 
-	const handleClick = () => {
-		setOpen(true);
-	};
+	// const handleClick = () => {
+	// 	setOpen(true);
+	// };
 
 	setOpen(false);
 	return (
