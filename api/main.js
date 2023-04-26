@@ -1,10 +1,10 @@
 import { safe, wegood, phetch, hashPassword, last, sleep } from "./utils.js";
 import { validate, ANY_OF, ARRAY_OF, OPTIONAL, DYNAMIC } from "arstotzka"; 
 
-function db(table, params, method, headers, body){
+function db(table, params, method = "GET", headers, body){
 	const path = `/rest/v1/${table}?${params.join("&")}`;
 	return phetch(`${process.env.SUPABASE_DB_URL}${path}`, {
-		method: method || "GET",
+		method: method,
 		headers: Object.assign({
 			"apikey": process.env.SUPABASE_KEY,
 			"Authorization": `Bearer ${process.env.SUPABASE_KEY}`,
@@ -87,30 +87,26 @@ function cleansing(vkPosts){
 	}));
 }
 
-const actionSchema = (action, params = {}, secure = true) => {
+const actionSchema = (action, params = {}) => {
 	const proto = Object.assign(params, {
 		action: x => x === action
 	});
-	if (secure) proto.access = [OPTIONAL, {
-		user: [OPTIONAL, "number"],
-		token: [OPTIONAL, "string"]
-	}]
 	return proto;
 };
 const actions = [
 	actionSchema("login", {
 		login: "string",
 		password: "string"
-	}, false),
+	}),
 	actionSchema("greet", {
 		page: "number"
-	}, false),
+	}),
 	actionSchema("setSettings", {
 		new: {
 			login: [OPTIONAL, "string"],
 			password: [OPTIONAL, "string"]
 		}
-	}, true),
+	}),
 	actionSchema("post", {
 		posts: ARRAY_OF({
 			id: "number",
@@ -120,25 +116,29 @@ const actions = [
 			}),
 			tags: ARRAY_OF("string")
 		})
-	}, true),
+	}),
 	actionSchema("search", {
 		query: "string"
-	}, false),
-	actionSchema("getTagSummary", {}, false),
-	actionSchema("grab", {}, true),
+	}),
+	actionSchema("getTagSummary", {}),
+	actionSchema("grab", {}),
 	actionSchema("page", {
 		page: "number"
-	}, false)
+	})
 ];
 const schema = ANY_OF(...actions);
 /*{
 	action: name,
-	access: {user, password},
 	...params
 }*/
+const PROTECTED_ACTIONS = [
+	"setSettings",
+	"post",
+	"grab"
+];
 
 async function accessGranted(action, user, token){
-	const secured = action !== "login" && !!actions.find(a => a.action(action))?.access;
+	const secured = PROTECTED_ACTIONS.includes(action) && !!actions.find(a => a.action(action))?.access;
 	if (!secured) return true;
 
 	const response = await db("users", [`id=eq.${user}`, `select=token`], "GET");
@@ -179,7 +179,6 @@ export default async function (request, response) {
 		case ("login"): {
 			const password = hashPassword(request.body.password);
 			const login = request.body.login;
-			
 			const r = await db("users", [`login=eq.${login}`]);
 			if (!wegood(r.status)){
 				response.status(502).send();
@@ -215,13 +214,15 @@ export default async function (request, response) {
 			return;
 		}
 		case ("greet"): {
-			const [ag, page] = await Promise.all([
+			const [ag, page, sr] = await Promise.all([
 				accessGranted("post", userId, token),
-				getPage(request.body.page)
+				getPage(request.body.page),
+				db("rpc/tagSummary", [], "POST")
 			]);
 			response.status(page ? 200 : 502).send({
 				auth: ag,
-				page
+				page,
+				tags: sr.body
 			});
 			return;
 		}

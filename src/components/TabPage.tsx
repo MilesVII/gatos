@@ -29,10 +29,14 @@ export default function TabPage(props: TabPageProps) {
 			<TabContext value={props.tab}>
 				<Box sx={{ borderBottom: 1, borderColor: "divider" }}>
 					<TabList onChange={handleChange} centered>
-						{filtered.map(t => <Tab label={t.title} key={t.key} value={t.key} />)}
+						{filtered.map(t => 
+							<Tab label={t.title} key={t.key} value={t.key} />
+						)}
 					</TabList>
 				</Box>
-				{filtered.map(t => <TabPanel key={t.key} value={t.key}>{t.contents}</TabPanel>)}
+				<div className="page">
+					{filtered.map(t => <TabPanel key={t.key} value={t.key}>{t.contents}</TabPanel>)}
+				</div>
 			</TabContext>
 		</Box>
 	);

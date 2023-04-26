@@ -30,7 +30,7 @@ export async function api(action: string, payload: any = {}): Promise<APIRespons
 	} else {
 		return {
 			success: false,
-			content: await response.json()
+			content: null//await response.json()
 		};
 	}
 }
