@@ -1,5 +1,5 @@
 //import * as React from 'react';
-import { Card, CardActions, CardContent, Button, ImageList, ImageListItem } from '@mui/material';
+import { Card, Alert, CardActions, CardContent, Button, ImageList, ImageListItem } from '@mui/material';
 import ListOfTags from "./ListOfTags";
 
 type VKPhoto = {
@@ -11,7 +11,8 @@ export type PostData = {
 	post: {
 		postId: number,
 		caption: string,
-		photos: VKPhoto[]
+		photos: VKPhoto[],
+		otherAttachments: boolean
 	},
 	tags: string[]
 }
@@ -21,8 +22,10 @@ type PostCardProps = {
 
 export default function PostCard(props: PostCardProps) {
 	const p = props.data;
+	if(!p.post.photos) console.log(p.id);
+	
 	return (
-		<Card sx={{ minWidth: 275 }}>
+		<Card>
 			<CardContent>
 				<ImageList cols={3} rowHeight={"auto"}>
 					{p.post.photos.map(photo => (
@@ -34,10 +37,12 @@ export default function PostCard(props: PostCardProps) {
 						</ImageListItem>
 					))}
 				</ImageList>
+				<div>{p.post.caption}</div>
+				{p.post.otherAttachments && <Alert severity="warning">Has other attachments</Alert>}
 				<ListOfTags data={p.tags.map(t => ({tag: t}))} onClick={()=>{}} />
 			</CardContent>
 			<CardActions>
-				<Button >Open post</Button>
+				<Button href={`https://vk.com/wall-95648824_${p.post.postId}`}>Open post</Button>
 			</CardActions>
 		</Card>
 	);

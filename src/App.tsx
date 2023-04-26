@@ -9,6 +9,8 @@ import type { TagData } from "./components/ListOfTags";
 import PostCard from "./components/PostCard";
 import { PostData } from "./components/PostCard";
 
+import { Stack } from "@mui/material";
+
 //type StateHookSetter<T> = React.Dispatch<React.SetStateAction<T>>;
 
 let once = true;
@@ -66,9 +68,9 @@ export default function App() {
 		{
 			title: "Browse",
 			key: "b",
-			contents: <>
+			contents: <Stack spacing={0.5}>
 				{browsePosts.map(post => <PostCard key={post.id} data={post}/>)}
-			</>
+			</Stack>
 		},
 		{
 			title: "Search",
@@ -76,7 +78,9 @@ export default function App() {
 			contents: <>
 				<ListOfTags data={tags} onClick={searchTag} />
 				<hr id="tagSpacer" />
-				{searchPosts.map(post => <PostCard key={post.id} data={post}/>)}
+				<Stack spacing={0.5}>
+					{searchPosts.map(post => <PostCard key={post.id} data={post}/>)}
+				</Stack>
 			</>
 		}
 	];

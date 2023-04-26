@@ -75,7 +75,7 @@ async function getPage(page = 0, stride = 200){
 function cleansing(vkPosts){
 	return vkPosts.map(p => ({
 		postId: p.id,
-		text: p.text,
+		caption: p.text,
 		photos: p.attachments
 			?.filter(a => a.type == "photo")
 			?.map(a => ({
@@ -138,7 +138,7 @@ const PROTECTED_ACTIONS = [
 ];
 
 async function accessGranted(action, user, token){
-	const secured = PROTECTED_ACTIONS.includes(action) && !!actions.find(a => a.action(action))?.access;
+	const secured = PROTECTED_ACTIONS.includes(action) ;
 	if (!secured) return true;
 
 	const response = await db("users", [`id=eq.${user}`, `select=token`], "GET");
@@ -262,6 +262,38 @@ export default async function (request, response) {
 		case ("getTagSummary"): {
 			const dbr = await db("rpc/tagSummary", [], "POST");
 			response.status(dbr.status).send(dbr.body);
+			return;
+		}
+		case ("debug"): {
+			/*const raw = [];
+			const dbr = await getPage(0, 700);
+			raw.push(...dbr.rows);
+			for (let i = 1; i < dbr.pageCount; ++i){
+				const dbr = await getPage(i, 700);
+				raw.push(...dbr.rows);
+			}
+
+			// const vkRaw = [];
+			// while (true){
+			// 	console.log(vkRaw.length);
+			// 	const batch = await vk(vkRaw.length);
+			// 	if (!batch.success){
+			// 		response.status(502).send("VK req failed");
+			// 		return;
+			// 	}
+			// 	if (batch.data.length == 0) break;
+			// 	vkRaw.push(...cleansing(batch.data));
+			// 	await sleep(200);
+			// }
+
+			const targets = raw.filter(r => r.post.text !== undefined);
+			targets.forEach(row => {
+				row.post.caption = row.post.text;
+				delete row.post.text;
+			});
+
+			const dbr2 = await db("posts", [], "POST", {"Prefer": "resolution=merge-duplicates"}, targets);
+			response.status(200).send(dbr2);*/
 			return;
 		}
 		case ("grab"): {

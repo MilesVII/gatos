@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, TextField } from "@mui/material";
+import { Stack, Button, TextField } from "@mui/material";
 
 type HookSetter = React.Dispatch<React.SetStateAction<string>>;
 
@@ -23,27 +23,29 @@ export default function LoginForm(props: LoginFormProps){
 	};
 
 	return (<form onSubmit={handleSubmit}>
-		<TextField 
-			id="login" 
-			label="Login" 
-			variant="standard" 
-			value={login}
-			onChange={handleChange(setLogin)}
-			required
-		/>
-		<TextField 
-			id="password" 
-			label="Password" 
-			variant="standard" 
-			value={password}
-			onChange={handleChange(setPassword)}
-			type="password"
-			required
-		/>
-		<Button
-			variant="outlined"
-			color="primary"
-			type="submit"
-		>Sign In</Button>
+		<Stack direction="column" spacing={.5}>
+			<TextField 
+				id="login" 
+				label="Login" 
+				variant="standard" 
+				value={login}
+				onChange={handleChange(setLogin)}
+				required
+			/>
+			<TextField 
+				id="password" 
+				label="Password" 
+				variant="standard" 
+				value={password}
+				onChange={handleChange(setPassword)}
+				type="password"
+				required
+			/>
+			<Button
+				variant="outlined"
+				color="primary"
+				type="submit"
+			>Sign In</Button>
+		</Stack>
 	</form>);
 }
