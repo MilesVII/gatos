@@ -14,7 +14,7 @@ export type PostData = {
 		photos: VKPhoto[],
 		otherAttachments: boolean
 	},
-	tags: string[]
+	tags: string[] | null
 }
 type PostCardProps = {
 	data: PostData
@@ -38,8 +38,8 @@ export default function PostCard(props: PostCardProps) {
 					))}
 				</ImageList>
 				<div>{p.post.caption}</div>
-				{p.post.otherAttachments && <Alert severity="warning">Has other attachments</Alert>}
-				<ListOfTags data={p.tags.map(t => ({tag: t}))} onClick={()=>{}} />
+				{p.post.otherAttachments && <Alert severity="warning">This post has other attachments</Alert>}
+				<ListOfTags data={p.tags?.map(t => ({tag: t})) || []} onClick={()=>{}} />
 			</CardContent>
 			<CardActions>
 				<Button href={`https://vk.com/wall-95648824_${p.post.postId}`}>Open post</Button>
