@@ -28,7 +28,6 @@ export default function App() {
 	const [page, setPage] = React.useState(1);
 
 	React.useEffect(() => {
-		console.log("greet call")
 		if (!once) return;
 		once = false;
 		api("greet", {page: 0}).then(r => {
@@ -53,15 +52,17 @@ export default function App() {
 		});
 	}
 	function searchTag(tag: TagData){
-		const spacer = document.querySelector("#tagSpacer");
 		setBackdrop(true);
 		api("search", {query: tag.tag}).then(r => {
 			if (r.success) {
-				spacer?.scrollIntoView({behavior: "smooth"});
 				setSearchPosts(r.content?.body);
 			}
 			setBackdrop(false);
 		});
+	}
+	function scrollIntoSearchSpacer(){
+		const spacer = document.querySelector("#tagSpacer");
+		spacer?.scrollIntoView({behavior: "smooth", block: "start"});
 	}
 	function flipBrowsingPage(_event: React.ChangeEvent<unknown>, page: number) {
 		setBackdrop(true);
@@ -85,6 +86,14 @@ export default function App() {
 			contents: <LoginForm submit={tryLogin} />
 		},
 		{
+			title: "Editor",
+			key: "e",
+			condition: () => {
+				return authorized;
+			},
+			contents: <>Editor!</>
+		},
+		{
 			title: "Browse",
 			key: "b",
 			contents: <>
@@ -92,7 +101,9 @@ export default function App() {
 					<Stack alignItems="center">
 						<Pagination count={pageCount} page={page} onChange={flipBrowsingPage} color="primary" />
 					</Stack>
-					{browsePosts.map(post => <PostCard key={post.id} data={post}/>)}
+					{browsePosts.map(post => 
+						<PostCard key={post.id} data={post} />
+					)}
 				</Stack>
 			</>
 		},
@@ -103,7 +114,13 @@ export default function App() {
 				<ListOfTags data={tags} onClick={searchTag} />
 				<hr id="tagSpacer" />
 				<Stack spacing={0.5}>
-					{searchPosts.map(post => <PostCard key={post.id} data={post}/>)}
+					{searchPosts.map((post, i) => 
+						<PostCard
+							key={post.id}
+							data={post}
+							onRender={i == 0 ? scrollIntoSearchSpacer : undefined}
+						/>
+					)}
 				</Stack>
 			</>
 		}
