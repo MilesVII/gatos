@@ -1,44 +1,46 @@
-import { Card, Alert, CardActions, CardContent, Button, ImageList, ImageListItem } from "@mui/material";
+import { Card, Alert, CardActions, CardContent, Button, ImageList, ImageListItem, Backdrop } from "@mui/material";
 import ListOfTags from "./ListOfTags";
 import * as React from "react";
 
-type VKPhoto = {
-	id: number,
-	url: string
-}
-export type PostData = {
-	id: number,
-	post: {
-		postId: number,
-		caption: string,
-		photos: VKPhoto[],
-		otherAttachments: boolean
-	},
-	tags: string[] | null
-}
+import type { PostData } from "../utils";
+
 type PostCardProps = {
 	data: PostData,
-	onRender?: () => void
+	onEdit?: (id: number, tags: string[]) => void
 };
 
+const viewerCSS = {
+	maxHeight: "90%",
+	maxWidth: "90%"
+}
+
+const clickableImgCSS = {
+	cursor: "pointer",
+	maxHeight: "40vh",
+	objectFit: "contain" as any // wow csstype how did you mess up so bad
+}
+
 export default function PostCard(props: PostCardProps) {
-	let [once] = React.useState(true);
-	React.useEffect(() => {
-		if (!once) return;
-		once = false; //To avoid rendering
-		if (props.onRender) props.onRender();
-	})
+	const [viewer, setViewer] = React.useState<string | null>(null);
+
+	const handleClose = () => {
+		setViewer(null);
+	}
 
 	const p = props.data;
+	const singlePhoto = p.post.photos?.length === 1;
+
 	return (
-		<Card>
+		<Card style={{backgroundColor: "lavender"}}>
 			<CardContent>
-				<ImageList cols={3} rowHeight={"auto"}>
+				<ImageList cols={singlePhoto ? 1 : 3} rowHeight={"auto"}>
 					{p.post.photos.map(photo => (
 						<ImageListItem key={photo.id}>
 							<img
-							src={photo.url}
-							loading="lazy"
+								src={photo.url}
+								loading="lazy"
+								onClick={()=>setViewer(photo.url)}
+								style={clickableImgCSS}
 							/>
 						</ImageListItem>
 					))}
@@ -50,6 +52,13 @@ export default function PostCard(props: PostCardProps) {
 			<CardActions>
 				<Button href={`https://vk.com/wall-95648824_${p.post.postId}`}>Open post</Button>
 			</CardActions>
+			<Backdrop
+				sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+				open={!!viewer}
+				onClick={handleClose}
+			>
+				<img src={viewer || "it never happens"} style={viewerCSS} />
+			</Backdrop>
 		</Card>
 	);
 }

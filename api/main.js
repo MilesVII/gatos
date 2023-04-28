@@ -54,8 +54,8 @@ function parseContentRange(range){
 	}
 }
 
-async function getPage(page = 0, stride = 200){
-	const dbr = await db("posts", ["order=post->postId.desc"], "GET", {
+async function getPage(page = 0, stride = 200, filters = []){
+	const dbr = await db("posts", ["order=post->postId.desc", ...filters], "GET", {
 		"Prefer": "count=exact",
 		"Range": renderContentRange(page * stride, (page + 1) * stride)
 	});
@@ -98,6 +98,7 @@ const actions = [
 		login: "string",
 		password: "string"
 	}),
+	actionSchema("signOut", {}),
 	actionSchema("greet", {
 		page: "number"
 	}),
@@ -118,7 +119,8 @@ const actions = [
 		})
 	}),
 	actionSchema("search", {
-		query: "string"
+		query: "string",
+		page: [OPTIONAL, "number"]
 	}),
 	actionSchema("getTagSummary", {}),
 	actionSchema("grab", {}),
@@ -132,6 +134,7 @@ const schema = ANY_OF(...actions);
 	...params
 }*/
 const PROTECTED_ACTIONS = [
+	"signOut",
 	"setSettings",
 	"post",
 	"grab"
@@ -213,6 +216,15 @@ export default async function (request, response) {
 			}));
 			return;
 		}
+		case ("signOut"): {
+			await db("users", [`id=eq.${userId}`], "PATCH", {}, {token: null});
+
+			response.writeHead(200, [
+				["Set-Cookie", `user=${""}; Secure; HttpOnly; expires=Thu, 01 Jan 1970 00:00:00 GMT`],
+				["Set-Cookie", `token=${""}; Secure; HttpOnly; expires=Thu, 01 Jan 1970 00:00:00 GMT`]
+			]).end();
+			return;
+		}
 		case ("greet"): {
 			const [ag, page, sr] = await Promise.all([
 				accessGranted("post", userId, token),
@@ -255,7 +267,8 @@ export default async function (request, response) {
 			return;
 		}
 		case ("search"): {
-			const dbr = await db("posts", [`tags=cs.{${encodeURIComponent(request.body.query)}}`], "GET");
+			const filters = [`tags=cs.{${encodeURIComponent(request.body.query)}}`];
+			const dbr = await getPage(request.body.page, undefined, filters);
 			response.status(200).send(dbr);
 			return;
 		}
@@ -307,7 +320,7 @@ export default async function (request, response) {
 			const raw = [];
 			let batch = {data:[{id: Infinity}]};
 			for (let offset = 0; last(batch.data).id > lastId; offset += batch.data.length){
-				console.log(offset);
+				// console.log(offset);
 				batch = await vk(offset);
 				if (!batch.success){
 					response.status(502).send("VK req failed");

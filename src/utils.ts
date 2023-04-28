@@ -1,8 +1,3 @@
-export type APIResponse = {
-	success: boolean,
-	content: any
-};
-
 export function safe<T>(cb: ()=>T): null | T {
 	try {
 		return cb();
@@ -11,6 +6,31 @@ export function safe<T>(cb: ()=>T): null | T {
 	}
 }
 
+export type PostData = {
+	id: number,
+	post: {
+		postId: number,
+		caption: string,
+		photos: {
+			id: number,
+			url: string
+		}[],
+		otherAttachments: boolean
+	},
+	tags: string[] | null
+};
+
+export type PagingData = {
+	pageCount: number,
+	rows: PostData[]
+};
+
+export type APIResponse = {
+	success: boolean,
+	code: number,
+	statusMessage: string,
+	content: any
+};
 export async function api(action: string, payload: any = {}): Promise<APIResponse>{
 	const response = await fetch("/api/main", {
 		method: "POST",
@@ -22,15 +42,13 @@ export async function api(action: string, payload: any = {}): Promise<APIRespons
 			...payload
 		})
 	});
-	if (response.ok){
-		return {
-			success: true,
-			content: await response.json()
-		};
-	} else {
-		return {
-			success: false,
-			content: null//await response.json()
-		};
-	}
+	const responseRaw = await response.text();
+	const responseParsed = safe(() => JSON.parse(responseRaw));
+	
+	return {
+		success: response.ok,
+		code: response.status,
+		statusMessage: response.statusText,
+		content: responseParsed || responseRaw
+	};
 }

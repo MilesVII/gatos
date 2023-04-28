@@ -1,13 +1,10 @@
-// @ts-nocheck
-// Disabling TS for this one because somehow "absolute" is not of type Position = "absolute" | "fixed" | ...
-
 const styles = {
 	progressbar: {
 		transitionProperty: "opacity",
 		transitionDuration: ".4s"
 	},
 	centered: {
-		position: "absolute",
+		position: "absolute" as any,
 		top: "50%",
 		left: "50%",
 		transform: "translate(-50%, -50%)"
