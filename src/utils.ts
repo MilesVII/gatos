@@ -25,6 +25,15 @@ export type PagingData = {
 	rows: PostData[]
 };
 
+export function patchPage(page: PagingData, id: number, newTags: string[]){
+	const target = page.rows.find(r => r.id === id);
+	if (target) {
+		target.tags = newTags;
+		return true;
+	}
+	return false;
+}
+
 export type APIResponse = {
 	success: boolean,
 	code: number,

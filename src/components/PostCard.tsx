@@ -1,5 +1,5 @@
 import { Card, Alert, CardActions, CardContent, Button, ImageList, ImageListItem, Backdrop } from "@mui/material";
-import ListOfTags from "./ListOfTags";
+import ListOfTags, { TagData } from "./ListOfTags";
 import * as React from "react";
 
 import type { PostData } from "../utils";
@@ -30,6 +30,10 @@ export default function PostCard(props: PostCardProps) {
 	const p = props.data;
 	const singlePhoto = p.post.photos?.length === 1;
 
+	const lotAuxProps: any = {};
+	if (props.onEdit)
+		lotAuxProps.onDelete = (newList: TagData[]) => props.onEdit && props.onEdit(p.id, newList.map(td => td.tag));
+
 	return (
 		<Card style={{backgroundColor: "lavender"}}>
 			<CardContent>
@@ -47,7 +51,7 @@ export default function PostCard(props: PostCardProps) {
 				</ImageList>
 				<div>{p.post.caption}</div>
 				{p.post.otherAttachments && <Alert severity="warning">This post has other attachments</Alert>}
-				<ListOfTags data={p.tags?.map(t => ({tag: t})) || []} />
+				<ListOfTags data={p.tags?.map(t => ({tag: t})) || []} {...lotAuxProps} />
 			</CardContent>
 			<CardActions>
 				<Button href={`https://vk.com/wall-95648824_${p.post.postId}`}>Open post</Button>

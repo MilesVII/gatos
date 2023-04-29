@@ -3,7 +3,7 @@ import * as React from "react";
 import ListOfTags from "./components/ListOfTags";
 import type { TagData } from "./components/ListOfTags";
 import { Stack, Pagination } from "@mui/material";
-import { api, PagingData } from "./utils";
+import { api, patchPage, PagingData } from "./utils";
 import type { ToastData } from "./App"
 import PostCard from "./components/PostCard";
 
@@ -42,6 +42,13 @@ export default function SearchTab(props: SearchTabProps){
 		});
 	}
 
+	function editPost(id: number, newTags: string[]){
+		if (!searchPosts) return;
+		if (patchPage(searchPosts, id, newTags)){
+			setSearchPosts({...searchPosts});
+		}
+	}
+
 	return (<>
 		<ListOfTags data={props.tags} onClick={searchTag} />
 		<hr id="tagSpacer" />
@@ -58,6 +65,7 @@ export default function SearchTab(props: SearchTabProps){
 				<PostCard
 					key={post.id}
 					data={post}
+					onEdit={props.authorized ? editPost : undefined}
 				/>
 			)}
 		</Stack>

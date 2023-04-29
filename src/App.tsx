@@ -7,7 +7,7 @@ import type { TagData } from "./components/ListOfTags";
 import PostCard from "./components/PostCard";
 import GenshinLoader from "./components/GenshinLoader";
 
-import { PostData, api } from "./utils";
+import { PagingData, api, patchPage } from "./utils";
 
 import { Stack, Backdrop, CircularProgress, Pagination, Button, Snackbar, Alert } from "@mui/material";
 import SearchTab from "./SearchTab";
@@ -27,8 +27,7 @@ export default function App() {
 	const [backdrop, setBackdrop] = React.useState(false);
 	const [loadingProgress, setLoadingProgress] = React.useState(0);
 	const [tags, setTags] = React.useState<TagData[]>([]);
-	const [browsePosts, setBrowsePosts] = React.useState<PostData[]>([]);
-	const [pageCount, setPageCount] = React.useState(1);
+	const [browsePosts, setBrowsePosts] = React.useState<PagingData | null>(null);
 	const [page, setPage] = React.useState(1);
 	const [toast, setToast] = React.useState<ToastData | null>(null);
 
@@ -41,8 +40,7 @@ export default function App() {
 			if (r.content?.auth) setAuthorized(true);
 			const sorted: TagData[] = r.content?.tags?.sort((a: TagData, b: TagData) => (b.count || 0) - (a.count || 0));
 			setTags(sorted);
-			setBrowsePosts(r.content?.page?.rows);
-			setPageCount(r.content?.page?.pageCount);
+			setBrowsePosts(r.content?.page);
 
 			if (!r.success) {
 				setToast({
@@ -97,7 +95,7 @@ export default function App() {
 		
 		api("page", {page: (page - 1)}).then(r => {
 			if (r.success) {
-				setBrowsePosts(r.content?.rows);
+				setBrowsePosts(r.content);
 				setPage(page);
 			} else {
 				setToast({
@@ -122,6 +120,13 @@ export default function App() {
 				});
 			}
 		});
+	}
+
+	function editPost(id: number, newTags: string[]){
+		if (!browsePosts) return;
+		if (patchPage(browsePosts, id, newTags)){
+			setBrowsePosts({...browsePosts});
+		}
 	}
 
 	const tabs: TabData[] = [
@@ -150,10 +155,10 @@ export default function App() {
 			contents: <>
 				<Stack spacing={1}>
 					<Stack alignItems="center">
-						<Pagination count={pageCount} page={page} onChange={flipBrowsingPage} color="primary" />
+						<Pagination count={browsePosts?.pageCount} page={page} onChange={flipBrowsingPage} color="primary" />
 					</Stack>
-					{browsePosts.map(post => 
-						<PostCard key={post.id} data={post} />
+					{browsePosts?.rows.map(post => 
+						<PostCard key={post.id} data={post} onEdit={authorized ? editPost : undefined} />
 					)}
 				</Stack>
 			</>
