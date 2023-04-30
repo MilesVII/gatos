@@ -4,13 +4,13 @@ import type { TabData } from "./components/TabPage";
 import LoginForm from "./components/LoginForm";
 import { Creds } from "./components/LoginForm";
 import type { TagData } from "./components/ListOfTags";
-import PostCard from "./components/PostCard";
 import GenshinLoader from "./components/GenshinLoader";
-
-import { PagingData, api, patchPage } from "./utils";
-
-import { Stack, Backdrop, CircularProgress, Pagination, Button, Snackbar, Alert } from "@mui/material";
 import SearchTab from "./SearchTab";
+import BrowseTab from "./BrowseTab";
+
+import { PagingData, api } from "./utils";
+
+import { Backdrop, CircularProgress, Button, Snackbar, Alert } from "@mui/material";
 
 //type StateHookSetter<T> = React.Dispatch<React.SetStateAction<T>>;
 
@@ -28,7 +28,6 @@ export default function App() {
 	const [loadingProgress, setLoadingProgress] = React.useState(0);
 	const [tags, setTags] = React.useState<TagData[]>([]);
 	const [browsePosts, setBrowsePosts] = React.useState<PagingData | null>(null);
-	const [page, setPage] = React.useState(1);
 	const [toast, setToast] = React.useState<ToastData | null>(null);
 
 	React.useEffect(() => {
@@ -75,6 +74,7 @@ export default function App() {
 			setBackdrop(false);
 		});
 	}
+
 	function signOut() {
 		setBackdrop(true);
 		api("signOut", {}).then(r => {
@@ -90,29 +90,13 @@ export default function App() {
 			setBackdrop(false);
 		});
 	}
-	function flipBrowsingPage(_event: any, page: number) {
-		setBackdrop(true);
-		
-		api("page", {page: (page - 1)}).then(r => {
-			if (r.success) {
-				setBrowsePosts(r.content);
-				setPage(page);
-			} else {
-				setToast({
-					text: `${r.code} ${r.statusMessage}`,
-					type: "error"
-				});
-			}
-			setBackdrop(false);
-		});
-	}
+
 	function grab() {
 		setBackdrop(true);
-
-		api("grab", {}).then(r => {
+		api("grab", {page: 0}).then(r => {
 			setBackdrop(false);
 			if (r.success) {
-				flipBrowsingPage(null, page)
+				setBrowsePosts(r.content?.page);
 			} else {
 				setToast({
 					text: `${r.code} ${r.statusMessage}`,
@@ -122,12 +106,6 @@ export default function App() {
 		});
 	}
 
-	function editPost(id: number, newTags: string[]){
-		if (!browsePosts) return;
-		if (patchPage(browsePosts, id, newTags)){
-			setBrowsePosts({...browsePosts});
-		}
-	}
 
 	const tabs: TabData[] = [
 		{
@@ -152,16 +130,13 @@ export default function App() {
 		{
 			title: "Browse",
 			key: "b",
-			contents: <>
-				<Stack spacing={1}>
-					<Stack alignItems="center">
-						<Pagination count={browsePosts?.pageCount} page={page} onChange={flipBrowsingPage} color="primary" />
-					</Stack>
-					{browsePosts?.rows.map(post => 
-						<PostCard key={post.id} data={post} onEdit={authorized ? editPost : undefined} />
-					)}
-				</Stack>
-			</>
+			contents: <>{browsePosts && <BrowseTab
+				posts={browsePosts}
+				authorized={authorized}
+				onPageFlip={setBrowsePosts}
+				backdropControl={setBackdrop}
+				toastControl={setToast}
+			/>}</>
 		},
 		{
 			title: "Search",

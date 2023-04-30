@@ -123,7 +123,9 @@ const actions = [
 		page: [OPTIONAL, "number"]
 	}),
 	actionSchema("getTagSummary", {}),
-	actionSchema("grab", {}),
+	actionSchema("grab", {
+		page: [OPTIONAL, "number"]
+	}),
 	actionSchema("page", {
 		page: "number"
 	})
@@ -338,7 +340,13 @@ export default async function (request, response) {
 			}));
 			const dbr = await db("posts", [], "POST", {"Prefer": "return-minimal"}, rows);
 
-			response.status(dbr.status).send(dbr);
+			const result = {
+				dbr: dbr
+			};
+			if ((typeof request.body.page === "number") && wegood(dbr.status)){
+				result.page = await getPage(request.body.page);
+			}
+			response.status(dbr.status).send(result);
 			return;
 		}
 		case ("page"): {
