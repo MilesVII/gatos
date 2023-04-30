@@ -30,7 +30,6 @@ export default function PostCard(props: PostCardProps) {
 	}
 
 	const p = props.data;
-	const singlePhoto = p.post.photos?.length === 1;
 
 	const lotAuxProps: any = {};
 	if (props.onEdit)
@@ -43,7 +42,7 @@ export default function PostCard(props: PostCardProps) {
 	return (
 		<Card style={{backgroundColor: "lavender"}}>
 			<CardContent>
-				<ImageList cols={singlePhoto ? 1 : 3} rowHeight={"auto"}>
+				<ImageList cols={Math.min(3, p.post.photos?.length)} rowHeight={"auto"}>
 					{p.post.photos.map(photo => (
 						<ImageListItem key={photo.id}>
 							<img
