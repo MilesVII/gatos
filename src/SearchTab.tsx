@@ -66,6 +66,7 @@ export default function SearchTab(props: SearchTabProps){
 					key={post.id}
 					data={post}
 					onEdit={props.authorized ? editPost : undefined}
+					tagOptions={props.authorized ? props.tags.map(t => t.tag) : undefined}
 				/>
 			)}
 		</Stack>

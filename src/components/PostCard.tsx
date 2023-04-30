@@ -3,10 +3,12 @@ import ListOfTags, { TagData } from "./ListOfTags";
 import * as React from "react";
 
 import type { PostData } from "../utils";
+import TagAdder from "./TagAdder";
 
 type PostCardProps = {
 	data: PostData,
 	onEdit?: (id: number, tags: string[]) => void
+	tagOptions?: string[]
 };
 
 const viewerCSS = {
@@ -34,6 +36,10 @@ export default function PostCard(props: PostCardProps) {
 	if (props.onEdit)
 		lotAuxProps.onDelete = (newList: TagData[]) => props.onEdit && props.onEdit(p.id, newList.map(td => td.tag));
 
+	function addTag(newTag: string){
+		props.onEdit && props.onEdit(props.data.id, [newTag, ...(props.data.tags || [])])
+	}
+
 	return (
 		<Card style={{backgroundColor: "lavender"}}>
 			<CardContent>
@@ -54,7 +60,11 @@ export default function PostCard(props: PostCardProps) {
 				<ListOfTags data={p.tags?.map(t => ({tag: t})) || []} {...lotAuxProps} />
 			</CardContent>
 			<CardActions>
-				<Button href={`https://vk.com/wall-95648824_${p.post.postId}`}>Open post</Button>
+				{props.onEdit && <TagAdder 
+					tagOptions={props.tagOptions || []}
+					onAdd={addTag}
+				/>}
+				<Button style={{marginLeft: "auto"}} href={`https://vk.com/wall-95648824_${p.post.postId}`}>Open post</Button>
 			</CardActions>
 			<Backdrop
 				sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}

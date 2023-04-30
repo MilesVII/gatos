@@ -8,6 +8,7 @@ import PostCard from "./components/PostCard";
 type BrowseTabProps = {
 	posts: PagingData,
 	authorized: boolean,
+	tagOptions?: string[],
 	onPageFlip: (newPage: PagingData) => void,
 	backdropControl: (_: boolean) => void,
 	toastControl: (_: ToastData | null) => void
@@ -45,7 +46,12 @@ export default function SearchTab(props: BrowseTabProps){
 				<Pagination count={props.posts.pageCount} page={page} onChange={flipBrowsingPage} color="primary" />
 			</Stack>
 			{props.posts.rows.map(post => 
-				<PostCard key={post.id} data={post} onEdit={props.authorized ? editPost : undefined} />
+				<PostCard 
+					key={post.id} 
+					data={post} 
+					onEdit={props.authorized ? editPost : undefined}
+					tagOptions={props.authorized ? props.tagOptions : undefined}
+				/>
 			)}
 		</Stack>
 	</>);

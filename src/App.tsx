@@ -106,7 +106,6 @@ export default function App() {
 		});
 	}
 
-
 	const tabs: TabData[] = [
 		{
 			title: "Login",
@@ -123,8 +122,8 @@ export default function App() {
 				return authorized;
 			},
 			contents: <>
-				<Button onClick={grab}>Grab new posts</Button>
-				<Button onClick={signOut}>Sign out</Button>
+				<Button variant="outlined" onClick={grab}>Grab new posts</Button>
+				<Button variant="outlined" onClick={signOut}>Sign out</Button>
 			</>
 		},
 		{
@@ -133,6 +132,7 @@ export default function App() {
 			contents: <>{browsePosts && <BrowseTab
 				posts={browsePosts}
 				authorized={authorized}
+				tagOptions={tags.map(t => t.tag)}
 				onPageFlip={setBrowsePosts}
 				backdropControl={setBackdrop}
 				toastControl={setToast}
