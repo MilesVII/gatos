@@ -118,6 +118,10 @@ const actions = [
 			tags: ARRAY_OF("string")
 		})
 	}),
+	actionSchema("patch", {
+		id: "number",
+		tags: ARRAY_OF("string")
+	}),
 	actionSchema("search", {
 		query: "string",
 		page: [OPTIONAL, "number"]
@@ -272,6 +276,11 @@ export default async function (request, response) {
 			const filters = [`tags=cs.{${encodeURIComponent(request.body.query)}}`];
 			const dbr = await getPage(request.body.page, undefined, filters);
 			response.status(200).send(dbr);
+			return;
+		}
+		case ("patch"): {
+			const dbr = await db("posts", [`id=eq.${request.body.id}`], "PATCH", {}, {tags: request.body.tags});
+			response.status(dbr.status).send(dbr.body);
 			return;
 		}
 		case ("getTagSummary"): {

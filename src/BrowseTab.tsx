@@ -9,6 +9,7 @@ type BrowseTabProps = {
 	posts: PagingData,
 	authorized: boolean,
 	tagOptions?: string[],
+	onEdit: (id:number, newTags: string[]) => void,
 	onPageFlip: (newPage: PagingData) => void,
 	backdropControl: (_: boolean) => void,
 	toastControl: (_: ToastData | null) => void
@@ -37,6 +38,7 @@ export default function SearchTab(props: BrowseTabProps){
 	function editPost(id: number, newTags: string[]){
 		if (patchPage(props.posts, id, newTags)){
 			props.onPageFlip({...props.posts});
+			props.onEdit(id, newTags);
 		}
 	}
 

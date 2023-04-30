@@ -10,6 +10,7 @@ import PostCard from "./components/PostCard";
 type SearchTabProps = {
 	tags: TagData[],
 	authorized: boolean,
+	onEdit: (id:number, newTags: string[]) => void,
 	backdropControl: (_: boolean) => void,
 	toastControl: (_: ToastData | null) => void
 };
@@ -46,6 +47,7 @@ export default function SearchTab(props: SearchTabProps){
 		if (!searchPosts) return;
 		if (patchPage(searchPosts, id, newTags)){
 			setSearchPosts({...searchPosts});
+			props.onEdit(id, newTags);
 		}
 	}
 

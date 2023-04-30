@@ -8,7 +8,7 @@ import GenshinLoader from "./components/GenshinLoader";
 import SearchTab from "./SearchTab";
 import BrowseTab from "./BrowseTab";
 
-import { PagingData, api } from "./utils";
+import { PagingData, api, sendPatch } from "./utils";
 
 import { Backdrop, CircularProgress, Button, Snackbar, Alert } from "@mui/material";
 
@@ -106,6 +106,18 @@ export default function App() {
 		});
 	}
 
+	function syncEdit(id: number, newTags: string[]){
+		const newbie = newTags.find(t => !tags.some(tt => tt.tag === t));
+		if (newbie) setTags([...tags, {tag: newbie}]);
+		sendPatch(id, newTags).then(r => {
+			if (!r.success)
+				setToast({
+					text: `Failed to edit: ${r.code} ${r.statusMessage}`,
+					type: "error"
+				});
+		});
+	}
+
 	const tabs: TabData[] = [
 		{
 			title: "Login",
@@ -133,6 +145,7 @@ export default function App() {
 				posts={browsePosts}
 				authorized={authorized}
 				tagOptions={tags.map(t => t.tag)}
+				onEdit={syncEdit}
 				onPageFlip={setBrowsePosts}
 				backdropControl={setBackdrop}
 				toastControl={setToast}
@@ -144,6 +157,7 @@ export default function App() {
 			contents: <SearchTab
 				tags={tags}
 				authorized={authorized}
+				onEdit={syncEdit}
 				backdropControl={setBackdrop}
 				toastControl={setToast}
 			 />

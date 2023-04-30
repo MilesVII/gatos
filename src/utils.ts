@@ -34,6 +34,13 @@ export function patchPage(page: PagingData, id: number, newTags: string[]){
 	return false;
 }
 
+export function sendPatch(id: number, newTags: string[]){
+	return api("patch", {
+		id: id,
+		tags: newTags
+	});
+}
+
 export type APIResponse = {
 	success: boolean,
 	code: number,
