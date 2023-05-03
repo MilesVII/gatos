@@ -10,17 +10,20 @@ const styles = {
 		transform: "translate(-50%, -50%)"
 	},
 	back: {
+		maxWidth: "42vw",
 		zIndex: "0",
 		filter: "opacity(40%) grayscale(100%)"
 	},
 	fore: {
+		maxWidth: "42vw",
 		zIndex: "1",
 		clipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
-		transitionProperty: "all",
+		transitionProperty: "clipPath",
 		transitionDuration: "1s"
 	}
 };
 
+//https://www.figma.com/community/file/1027476340987030497/Genshin-Impact-%E2%80%94-Elements
 type LoaderProps = {
 	image: string,
 	progress: number
