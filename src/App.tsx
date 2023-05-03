@@ -35,7 +35,7 @@ export default function App() {
 		once = false;
 		api("greet", {page: 0}).then(r => {
 			setLoadingProgress(.99);
-			//setTimeout(() => setLoadingProgress(1.1), 640);
+			setTimeout(() => setLoadingProgress(1.1), 640);
 			if (r.content?.auth) setAuthorized(true);
 			const sorted: TagData[] = r.content?.tags?.sort((a: TagData, b: TagData) => (b.count || 0) - (a.count || 0));
 			setTags(sorted);

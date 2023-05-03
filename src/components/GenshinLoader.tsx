@@ -18,7 +18,7 @@ const styles = {
 		maxWidth: "42vw",
 		zIndex: "1",
 		clipPath: "polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)",
-		transitionProperty: "clipPath",
+		transitionProperty: "all",
 		transitionDuration: "1s"
 	}
 };
