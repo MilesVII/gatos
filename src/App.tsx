@@ -10,7 +10,7 @@ import BrowseTab from "./BrowseTab";
 
 import { PagingData, api, sendPatch } from "./utils";
 
-import { Backdrop, CircularProgress, Button, Snackbar, Alert } from "@mui/material";
+import { Backdrop, CircularProgress, Button, Snackbar, Alert, TextField, FormControl, Select, MenuItem } from "@mui/material";
 
 //type StateHookSetter<T> = React.Dispatch<React.SetStateAction<T>>;
 
@@ -29,6 +29,7 @@ export default function App() {
 	const [tags, setTags] = React.useState<TagData[]>([]);
 	const [browsePosts, setBrowsePosts] = React.useState<PagingData | null>(null);
 	const [toast, setToast] = React.useState<ToastData | null>(null);
+	const [renameSrc, setRenameSrc] = React.useState("");
 
 	React.useEffect(() => {
 		if (!once) return;
@@ -40,6 +41,7 @@ export default function App() {
 			const sorted: TagData[] = r.content?.tags?.sort((a: TagData, b: TagData) => (b.count || 0) - (a.count || 0));
 			setTags(sorted);
 			setBrowsePosts(r.content?.page);
+			setRenameSrc(sorted[0].tag);
 
 			if (!r.success) {
 				setToast({
@@ -118,6 +120,33 @@ export default function App() {
 		});
 	}
 
+	function rename(){
+		const src = renameSrc;
+		const dst = (document.querySelector("#rename_dst") as HTMLInputElement).value ?? "";
+		if (dst.length <= 0) return;
+		setBackdrop(true);
+		api("rename", {src: src, dst: dst}).then(r => {
+			setBackdrop(false);
+			if (r.success) {
+				const nt = tags.map(t => t);
+				const target = nt.find(t => t.tag === src);
+				if (target) {
+					target.tag = dst;
+					setTags(nt);
+					setRenameSrc(nt[0].tag);
+					(document.querySelector("#rename_dst") as HTMLInputElement).value == "";
+				}
+			} else {
+				setToast({
+					text: `${r.code} ${r.statusMessage}`,
+					type: "error"
+				});
+			}
+		});
+		console.log(src);
+		console.log(dst);
+	}
+
 	const tabs: TabData[] = [
 		{
 			title: "Login",
@@ -134,8 +163,23 @@ export default function App() {
 				return authorized;
 			},
 			contents: <>
-				<Button variant="outlined" onClick={grab}>Grab new posts</Button>
-				<Button variant="outlined" onClick={signOut}>Sign out</Button>
+				<div className="settingsRow">
+					<Button variant="outlined" onClick={grab}>Grab new posts</Button>
+					<Button variant="outlined" onClick={signOut}>Sign out</Button>
+				</div>
+				<div className="settingsRow" style={{marginTop: "1em"}}>
+					<FormControl variant="standard" sx={{ m: 1, minWidth: "17vw" }}>
+						<Select
+							id="rename_src_select"
+							value={renameSrc}
+							onChange={e => setRenameSrc(e.target.value)}
+						>
+							{tags.map(t => <MenuItem key={t.tag} value={t.tag}>{t.tag}</MenuItem>)}
+						</Select>
+					</FormControl>
+					<TextField id="rename_dst" label="dst" variant="standard" size="small" />
+					<Button variant="outlined" onClick={rename}>Rename</Button>
+				</div>
 			</>
 		},
 		{

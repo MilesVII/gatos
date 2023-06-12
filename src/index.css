@@ -11,3 +11,9 @@ body {
 	width: 80%;
 	margin: auto;
 }
+
+.settingsRow { 
+	display: flex;
+	flex-flow: row wrap;
+	gap: 1em;
+}

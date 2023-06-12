@@ -127,6 +127,10 @@ const actions = [
 		page: [OPTIONAL, "number"]
 	}),
 	actionSchema("getTagSummary", {}),
+	actionSchema("rename", {
+		src: "string",
+		dst: "string"
+	}),
 	actionSchema("grab", {
 		page: [OPTIONAL, "number"]
 	}),
@@ -143,6 +147,7 @@ const PROTECTED_ACTIONS = [
 	"signOut",
 	"setSettings",
 	"post",
+	"rename",
 	"grab"
 ];
 
@@ -161,6 +166,10 @@ async function accessGranted(action, user, token){
 
 	const allowed = dossier.token === hashPassword(token);
 	return allowed;
+}
+
+function escapeCommas(src){
+	return src.replaceAll(",", "\\,");
 }
 
 export default async function (request, response) {
@@ -273,7 +282,7 @@ export default async function (request, response) {
 			return;
 		}
 		case ("search"): {
-			const filters = [`tags=cs.{${encodeURIComponent(request.body.query)}}`];
+			const filters = [`tags=cs.{${encodeURIComponent(escapeCommas(request.body.query))}}`];
 			const dbr = await getPage(request.body.page, undefined, filters);
 			response.status(200).send(dbr);
 			return;
@@ -286,6 +295,25 @@ export default async function (request, response) {
 		case ("getTagSummary"): {
 			const dbr = await db("rpc/tagSummary", [], "POST");
 			response.status(dbr.status).send(dbr.body);
+			return;
+		}
+		case ("rename"): {
+			const src = escapeCommas(request.body.src);
+			const dst = request.body.dst;
+			const filters = [`tags=cs.{${encodeURIComponent(src)}}`];
+
+			function rename(rows){
+				rows.forEach(r => r.tags = r.tags.map(t => t === src ? dst : t))
+			}
+
+			let haltFlag = false;
+			while (!haltFlag){
+				const dbr = await getPage(0, undefined, filters);
+				rename(dbr.rows);
+				const prr = await db("posts", [], "POST", {"Prefer": "resolution=merge-duplicates"}, dbr.rows);
+				haltFlag = dbr.pageCount <= 1;
+			}
+			response.status(200).end();
 			return;
 		}
 		case ("debug"): {
