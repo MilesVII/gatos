@@ -1,6 +1,6 @@
 import { Card, Alert, CardActions, CardContent, Button, ImageList, ImageListItem, Backdrop } from "@mui/material";
 import ListOfTags, { TagData } from "./ListOfTags";
-import * as React from "react";
+import { useState, useRef} from "react";
 
 import type { PostData } from "../utils";
 import TagAdder from "./TagAdder";
@@ -23,7 +23,9 @@ const clickableImgCSS = {
 }
 
 export default function PostCard(props: PostCardProps) {
-	const [viewer, setViewer] = React.useState<string | null>(null);
+	const [viewer, setViewer] = useState<string | null>(null);
+	const imgRef = useRef<HTMLImageElement>(null);
+
 
 	const handleClose = () => {
 		setViewer(null);
@@ -43,11 +45,13 @@ export default function PostCard(props: PostCardProps) {
 		<Card style={{backgroundColor: "lavender"}}>
 			<CardContent>
 				<ImageList cols={Math.min(3, p.post.photos?.length)} rowHeight={"auto"}>
-					{p.post.photos.map(photo => (
+					{p.post.photos.map((photo, i) => (
 						<ImageListItem key={photo.id}>
 							<img
 								src={photo.url}
 								loading="lazy"
+								ref={i === 0 ? imgRef : undefined}
+								onError={()=>{if (imgRef.current) imgRef.current.src = "/error.svg"}}
 								onClick={()=>setViewer(photo.url)}
 								style={clickableImgCSS}
 							/>
