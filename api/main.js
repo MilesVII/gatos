@@ -55,7 +55,7 @@ function parseContentRange(range){
 }
 
 async function getPage(page = 0, stride = 200, filters = []){
-	const dbr = await db("posts", ["order=post->postId.desc", ...filters], "GET", {
+	const dbr = await db("posts", ["order=post->>postId.desc", ...filters], "GET", {
 		"Prefer": "count=exact",
 		"Range": renderContentRange(page * stride, (page + 1) * stride)
 	});
